@@ -1,0 +1,37 @@
+dependencies:
+  button:
+    dependencies: []
+    source:
+      path: D:\Espressif\frameworks\esp-idf-v5.4\examples\bluetooth\esp_ble_mesh\common_components\button
+      type: local
+    version: '*'
+  example_init:
+    dependencies: []
+    source:
+      path: D:\Espressif\frameworks\esp-idf-v5.4\examples\bluetooth\esp_ble_mesh\common_components\example_init
+      type: local
+    version: '*'
+  example_nvs:
+    dependencies: []
+    source:
+      path: D:\Espressif\frameworks\esp-idf-v5.4\examples\bluetooth\esp_ble_mesh\common_components\example_nvs
+      type: local
+    version: '*'
+  idf:
+    source:
+      type: idf
+    version: 5.4.0
+  protocol_examples_common:
+    dependencies: []
+    source:
+      path: D:\Espressif\frameworks\esp-idf-v5.4\examples\common_components\protocol_examples_common
+      type: local
+    version: '*'
+direct_dependencies:
+- button
+- example_init
+- example_nvs
+- protocol_examples_common
+manifest_hash: bd09f85ad2bc4ecfef3e664125d7ce9d8fb8d02506eb18fcba94c4570adb2981
+target: esp32c3
+version: 2.0.0
