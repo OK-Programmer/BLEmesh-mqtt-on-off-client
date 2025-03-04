@@ -12,13 +12,12 @@
 #include "esp_log.h"
 #include "nvs_flash.h"
 
-// #include "esp_ble_mesh_common_api.h"
-// #include "esp_ble_mesh_provisioning_api.h"
-// #include "esp_ble_mesh_networking_api.h"
-// #include "esp_ble_mesh_config_model_api.h"
-// #include "esp_ble_mesh_generic_model_api.h"
+#include "esp_ble_mesh_common_api.h"
+#include "esp_ble_mesh_provisioning_api.h"
+#include "esp_ble_mesh_networking_api.h"
+#include "esp_ble_mesh_config_model_api.h"
+#include "esp_ble_mesh_generic_model_api.h"
 
-#include "board.h"
 #include "ble_mesh_example_init.h"
 #include "ble_mesh_example_nvs.h"
 
@@ -38,7 +37,6 @@ static struct example_info_store {
 } __attribute__((packed)) store = {
     .net_idx = ESP_BLE_MESH_KEY_UNUSED,
     .app_idx = ESP_BLE_MESH_KEY_UNUSED,
-    .onoff = LED_OFF,
     .tid = 0x0,
 };
 
@@ -86,7 +84,7 @@ static esp_ble_mesh_comp_t composition = {
 /* Disable OOB security for SILabs Android app */
 static esp_ble_mesh_prov_t provision = {
     .uuid = dev_uuid,
-#if 0
+#if 1
     .output_size = 4,
     .output_actions = ESP_BLE_MESH_DISPLAY_NUMBER,
     .input_size = 4,
@@ -122,7 +120,6 @@ static void prov_complete(uint16_t net_idx, uint16_t addr, uint8_t flags, uint32
 {
     ESP_LOGI(TAG, "net_idx: 0x%04x, addr: 0x%04x", net_idx, addr);
     ESP_LOGI(TAG, "flags: 0x%02x, iv_index: 0x%08" PRIx32, flags, iv_index);
-    board_led_operation(LED_G, LED_OFF);
     store.net_idx = net_idx;
     /* mesh_example_info_store() shall not be invoked here, because if the device
     * is restarted and goes into a provisioned state, then the following events
@@ -287,8 +284,6 @@ static esp_err_t ble_mesh_init(void)
 
     ESP_LOGI(TAG, "BLE Mesh Node initialized");
 
-    board_led_operation(LED_G, LED_ON);
-
     return err;
 }
 
@@ -297,8 +292,6 @@ void ble_mesh_client_main(void)
     esp_err_t err;
 
     ESP_LOGI(TAG, "Initializing...");
-
-    board_init();
 
     err = nvs_flash_init();
     if (err == ESP_ERR_NVS_NO_FREE_PAGES) {
