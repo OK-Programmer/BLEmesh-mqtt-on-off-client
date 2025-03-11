@@ -112,35 +112,12 @@ static void mqtt5_event_handler(void *handler_args, esp_event_base_t base, int32
     switch ((esp_mqtt_event_id_t)event_id) {
     case MQTT_EVENT_CONNECTED:
         ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
-
-        // print_user_property(event->property->user_property);
-        // esp_mqtt5_client_set_user_property(&publish_property.user_property, user_property_arr, USE_PROPERTY_ARR_SIZE);
-        // esp_mqtt5_client_set_publish_property(client, &publish_property);
-        // msg_id = esp_mqtt_client_publish(client, "/topic/qos1", "data_3", 0, 1, 1);
-        // esp_mqtt5_client_delete_user_property(publish_property.user_property);
-        // publish_property.user_property = NULL;
-        // ESP_LOGI(TAG, "sent publish successful, msg_id=%d", msg_id);
-
         esp_mqtt5_client_set_user_property(&subscribe_property.user_property, user_property_arr, USE_PROPERTY_ARR_SIZE);
         esp_mqtt5_client_set_subscribe_property(client, &subscribe_property);
-        msg_id = esp_mqtt_client_subscribe(client, "/SIT/CSC2106", 0);
+        msg_id = esp_mqtt_client_subscribe(client, "/CSC2106/state", 0);
         esp_mqtt5_client_delete_user_property(subscribe_property.user_property);
         subscribe_property.user_property = NULL;
         ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
-
-        // esp_mqtt5_client_set_user_property(&subscribe1_property.user_property, user_property_arr, USE_PROPERTY_ARR_SIZE);
-        // esp_mqtt5_client_set_subscribe_property(client, &subscribe1_property);
-        // msg_id = esp_mqtt_client_subscribe(client, "/topic/qos1", 2);
-        // esp_mqtt5_client_delete_user_property(subscribe1_property.user_property);
-        // subscribe1_property.user_property = NULL;
-        // ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
-
-        // esp_mqtt5_client_set_user_property(&unsubscribe_property.user_property, user_property_arr, USE_PROPERTY_ARR_SIZE);
-        // esp_mqtt5_client_set_unsubscribe_property(client, &unsubscribe_property);
-        // msg_id = esp_mqtt_client_unsubscribe(client, "/topic/qos0");
-        // ESP_LOGI(TAG, "sent unsubscribe successful, msg_id=%d", msg_id);
-        // esp_mqtt5_client_delete_user_property(unsubscribe_property.user_property);
-        // unsubscribe_property.user_property = NULL;
         break;
     case MQTT_EVENT_DISCONNECTED:
         ESP_LOGI(TAG, "MQTT_EVENT_DISCONNECTED");
@@ -175,9 +152,7 @@ static void mqtt5_event_handler(void *handler_args, esp_event_base_t base, int32
         ESP_LOGI(TAG, "content_type is %.*s", event->property->content_type_len, event->property->content_type);
         ESP_LOGI(TAG, "TOPIC=%.*s", event->topic_len, event->topic);
         ESP_LOGI(TAG, "DATA=%.*s", event->data_len, event->data);
-        if (strcmp(event->data, "toggle") == 0 && strcmp(event->topic, "/CSC2106/state") == 0) {
-            example_ble_mesh_send_gen_onoff_set();
-        }
+        example_ble_mesh_send_gen_onoff_set();
         break;
     case MQTT_EVENT_ERROR:
         ESP_LOGI(TAG, "MQTT_EVENT_ERROR");
