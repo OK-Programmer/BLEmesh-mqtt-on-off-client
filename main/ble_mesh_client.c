@@ -1,9 +1,9 @@
 /*
-* SPDX-FileCopyrightText: 2017 Intel Corporation
-* SPDX-FileContributor: 2018-2021 Espressif Systems (Shanghai) CO LTD
-*
-* SPDX-License-Identifier: Apache-2.0
-*/
+ * SPDX-FileCopyrightText: 2017 Intel Corporation
+ * SPDX-FileContributor: 2018-2021 Espressif Systems (Shanghai) CO LTD
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 #include <stdio.h>
 #include <string.h>
@@ -18,6 +18,7 @@
 #include "esp_ble_mesh_config_model_api.h"
 #include "esp_ble_mesh_generic_model_api.h"
 
+#include "board.h"
 #include "ble_mesh_example_init.h"
 #include "ble_mesh_example_nvs.h"
 
@@ -37,6 +38,7 @@ static struct example_info_store {
 } __attribute__((packed)) store = {
     .net_idx = ESP_BLE_MESH_KEY_UNUSED,
     .app_idx = ESP_BLE_MESH_KEY_UNUSED,
+    .onoff = LED_OFF,
     .tid = 0x0,
 };
 
@@ -84,7 +86,7 @@ static esp_ble_mesh_comp_t composition = {
 /* Disable OOB security for SILabs Android app */
 static esp_ble_mesh_prov_t provision = {
     .uuid = dev_uuid,
-#if 1
+#if 0
     .output_size = 4,
     .output_actions = ESP_BLE_MESH_DISPLAY_NUMBER,
     .input_size = 4,
@@ -120,20 +122,21 @@ static void prov_complete(uint16_t net_idx, uint16_t addr, uint8_t flags, uint32
 {
     ESP_LOGI(TAG, "net_idx: 0x%04x, addr: 0x%04x", net_idx, addr);
     ESP_LOGI(TAG, "flags: 0x%02x, iv_index: 0x%08" PRIx32, flags, iv_index);
+    
     store.net_idx = net_idx;
     /* mesh_example_info_store() shall not be invoked here, because if the device
-    * is restarted and goes into a provisioned state, then the following events
-    * will come:
-    * 1st: ESP_BLE_MESH_NODE_PROV_COMPLETE_EVT
-    * 2nd: ESP_BLE_MESH_PROV_REGISTER_COMP_EVT
-    * So the store.net_idx will be updated here, and if we store the mesh example
-    * info here, the wrong app_idx (initialized with 0xFFFF) will be stored in nvs
-    * just before restoring it.
-    */
+     * is restarted and goes into a provisioned state, then the following events
+     * will come:
+     * 1st: ESP_BLE_MESH_NODE_PROV_COMPLETE_EVT
+     * 2nd: ESP_BLE_MESH_PROV_REGISTER_COMP_EVT
+     * So the store.net_idx will be updated here, and if we store the mesh example
+     * info here, the wrong app_idx (initialized with 0xFFFF) will be stored in nvs
+     * just before restoring it.
+     */
 }
 
 static void example_ble_mesh_provisioning_cb(esp_ble_mesh_prov_cb_event_t event,
-                                            esp_ble_mesh_prov_cb_param_t *param)
+                                             esp_ble_mesh_prov_cb_param_t *param)
 {
     switch (event) {
     case ESP_BLE_MESH_PROV_REGISTER_COMP_EVT:
@@ -191,6 +194,8 @@ void example_ble_mesh_send_gen_onoff_set(void)
     if (err) {
         ESP_LOGE(TAG, "Send Generic OnOff Set Unack failed");
         return;
+    } else {
+        ESP_LOGI(TAG, "Send Generic OnOff Set Unack: %s", store.onoff ? "ON" : "OFF");
     }
 
     store.onoff = !store.onoff;
@@ -198,7 +203,7 @@ void example_ble_mesh_send_gen_onoff_set(void)
 }
 
 static void example_ble_mesh_generic_client_cb(esp_ble_mesh_generic_client_cb_event_t event,
-                                            esp_ble_mesh_generic_client_cb_param_t *param)
+                                               esp_ble_mesh_generic_client_cb_param_t *param)
 {
     ESP_LOGI(TAG, "Generic client, event %u, error code %d, opcode is 0x%04" PRIx32,
         event, param->error_code, param->params->opcode);
@@ -232,7 +237,7 @@ static void example_ble_mesh_generic_client_cb(esp_ble_mesh_generic_client_cb_ev
 }
 
 static void example_ble_mesh_config_server_cb(esp_ble_mesh_cfg_server_cb_event_t event,
-                                            esp_ble_mesh_cfg_server_cb_param_t *param)
+                                              esp_ble_mesh_cfg_server_cb_param_t *param)
 {
     if (event == ESP_BLE_MESH_CFG_SERVER_STATE_CHANGE_EVT) {
         switch (param->ctx.recv_op) {
@@ -292,6 +297,8 @@ void ble_mesh_client_main(void)
     esp_err_t err;
 
     ESP_LOGI(TAG, "Initializing...");
+
+    board_init();
 
     err = nvs_flash_init();
     if (err == ESP_ERR_NVS_NO_FREE_PAGES) {

@@ -18,5 +18,6 @@
 #include "ble_mesh_example_nvs.h"
 
 void ble_mesh_client_main(void);
+void example_ble_mesh_send_gen_onoff_set(void);
 
 #endif // BLE_MESH_CLIENT_H

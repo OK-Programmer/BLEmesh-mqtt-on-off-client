@@ -20,6 +20,8 @@
 
 static const char *TAG = "mqtt5_example";
 
+extern void example_ble_mesh_send_gen_onoff_set(void);
+
 static void log_error_if_nonzero(const char *message, int error_code)
 {
     if (error_code != 0) {
@@ -148,7 +150,7 @@ static void mqtt5_event_handler(void *handler_args, esp_event_base_t base, int32
         ESP_LOGI(TAG, "MQTT_EVENT_SUBSCRIBED, msg_id=%d", event->msg_id);
         print_user_property(event->property->user_property);
         esp_mqtt5_client_set_publish_property(client, &publish_property);
-        msg_id = esp_mqtt_client_publish(client, "/SIT/CSC2106", "test 6/3/2025", 0, 0, 0);
+        msg_id = esp_mqtt_client_publish(client, "/CSC2106/state", "toggle", 0, 0, 0);
         ESP_LOGI(TAG, "sent publish successful, msg_id=%d", msg_id);
         break;
     case MQTT_EVENT_UNSUBSCRIBED:
@@ -173,6 +175,9 @@ static void mqtt5_event_handler(void *handler_args, esp_event_base_t base, int32
         ESP_LOGI(TAG, "content_type is %.*s", event->property->content_type_len, event->property->content_type);
         ESP_LOGI(TAG, "TOPIC=%.*s", event->topic_len, event->topic);
         ESP_LOGI(TAG, "DATA=%.*s", event->data_len, event->data);
+        if (strcmp(event->data, "toggle") == 0 && strcmp(event->topic, "/CSC2106/state") == 0) {
+            example_ble_mesh_send_gen_onoff_set();
+        }
         break;
     case MQTT_EVENT_ERROR:
         ESP_LOGI(TAG, "MQTT_EVENT_ERROR");

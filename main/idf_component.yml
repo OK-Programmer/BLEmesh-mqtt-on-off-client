@@ -1,4 +1,6 @@
 dependencies:
+  button:
+    path: ${IDF_PATH}/examples/bluetooth/esp_ble_mesh/common_components/button
   protocol_examples_common:
     path: ${IDF_PATH}/examples/common_components/protocol_examples_common
   example_init:

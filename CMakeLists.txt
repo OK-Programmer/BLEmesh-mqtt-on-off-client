@@ -3,4 +3,4 @@
 cmake_minimum_required(VERSION 3.16)
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
-project(BLEmesh-mqtt-client)
+project(BLEmesh-mqtt-on-off-client)

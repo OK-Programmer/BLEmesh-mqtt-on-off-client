@@ -8,4 +8,10 @@
     "idf.flashType": "UART",
     "idf.portWin": "COM3",
     "C_Cpp.default.compilerPath": "D:/Espressif/tools/riscv32-esp-elf/esp-14.2.0_20241119/riscv32-esp-elf/bin/riscv32-esp-elf-gcc.exe",
+    "files.associations": {
+        "*.php": "php",
+        "*.html": "html",
+        "board.h": "c",
+        "iot_button.h": "c"
+    },
 }
