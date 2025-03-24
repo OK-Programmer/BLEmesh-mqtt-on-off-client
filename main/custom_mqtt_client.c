@@ -107,6 +107,7 @@ static void mqtt5_event_handler(void *handler_args, esp_event_base_t base, int32
     esp_mqtt_event_handle_t event = event_data;
     esp_mqtt_client_handle_t client = event->client;
     int msg_id;
+    char topic[] = "/CSC2106/state\0";
 
     ESP_LOGD(TAG, "free heap size is %" PRIu32 ", minimum %" PRIu32, esp_get_free_heap_size(), esp_get_minimum_free_heap_size());
     switch ((esp_mqtt_event_id_t)event_id) {
@@ -114,7 +115,7 @@ static void mqtt5_event_handler(void *handler_args, esp_event_base_t base, int32
         ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
         esp_mqtt5_client_set_user_property(&subscribe_property.user_property, user_property_arr, USE_PROPERTY_ARR_SIZE);
         esp_mqtt5_client_set_subscribe_property(client, &subscribe_property);
-        msg_id = esp_mqtt_client_subscribe(client, "/CSC2106/state", 0);
+        msg_id = esp_mqtt_client_subscribe(client, topic, 0);
         esp_mqtt5_client_delete_user_property(subscribe_property.user_property);
         subscribe_property.user_property = NULL;
         ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
@@ -126,9 +127,9 @@ static void mqtt5_event_handler(void *handler_args, esp_event_base_t base, int32
     case MQTT_EVENT_SUBSCRIBED:
         ESP_LOGI(TAG, "MQTT_EVENT_SUBSCRIBED, msg_id=%d", event->msg_id);
         print_user_property(event->property->user_property);
-        esp_mqtt5_client_set_publish_property(client, &publish_property);
-        msg_id = esp_mqtt_client_publish(client, "/CSC2106/state", "toggle", 0, 0, 0);
-        ESP_LOGI(TAG, "sent publish successful, msg_id=%d", msg_id);
+        // esp_mqtt5_client_set_publish_property(client, &publish_property);
+        // msg_id = esp_mqtt_client_publish(client, topic, message, 0, 0, 0);
+        // ESP_LOGI(TAG, "sent publish successful, msg_id=%d", msg_id);
         break;
     case MQTT_EVENT_UNSUBSCRIBED:
         ESP_LOGI(TAG, "MQTT_EVENT_UNSUBSCRIBED, msg_id=%d", event->msg_id);
