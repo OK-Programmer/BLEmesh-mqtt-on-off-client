@@ -21,6 +21,7 @@
 #include "board.h"
 #include "ble_mesh_example_init.h"
 #include "ble_mesh_example_nvs.h"
+#include "esp_timer.h"
 
 #include "ble_mesh_client.h"
 
@@ -45,6 +46,7 @@
 static uint8_t dev_uuid[ESP_BLE_MESH_OCTET16_LEN];
 static uint16_t server_address = ESP_BLE_MESH_ADDR_UNASSIGNED;
 static uint8_t onoff;
+static int64_t send_time;
 
 static struct esp_ble_mesh_key
 {
@@ -479,7 +481,7 @@ void example_ble_mesh_send_gen_onoff_set(void)
     esp_ble_mesh_client_common_param_t common = {0};
     esp_err_t err = ESP_OK;
 
-    common.opcode = ESP_BLE_MESH_MODEL_OP_GEN_ONOFF_SET_UNACK;
+    common.opcode = ESP_BLE_MESH_MODEL_OP_GEN_ONOFF_SET;
     common.model = onoff_client.model;
     common.ctx.net_idx = prov_key.net_idx;
     common.ctx.app_idx = prov_key.app_idx;
@@ -496,10 +498,12 @@ void example_ble_mesh_send_gen_onoff_set(void)
 
     err = esp_ble_mesh_generic_client_set_state(&common, &set);
     if (err) {
-        ESP_LOGE(TAG, "Send Generic OnOff Set Unack failed");
+        ESP_LOGE(TAG, "Send Generic OnOff Set failed");
         return;
     } else {
-        ESP_LOGI(TAG, "Send Generic OnOff Set Unack: %s", onoff ? "ON" : "OFF");
+        send_time = esp_timer_get_time();
+        ESP_LOGI(TAG, "Sent OnOff Set at: %lld us", send_time);
+        ESP_LOGI(TAG, "Send Generic OnOff Set: %s", onoff ? "ON" : "OFF");
     }
 
     onoff = !onoff;
@@ -522,6 +526,10 @@ static void example_ble_mesh_generic_client_cb(esp_ble_mesh_generic_client_cb_ev
         ESP_LOGI(TAG, "ESP_BLE_MESH_GENERIC_CLIENT_SET_STATE_EVT");
         if (param->params->opcode == ESP_BLE_MESH_MODEL_OP_GEN_ONOFF_SET) {
             ESP_LOGI(TAG, "ESP_BLE_MESH_MODEL_OP_GEN_ONOFF_SET, onoff %d", param->status_cb.onoff_status.present_onoff);
+            int64_t receive_time = esp_timer_get_time();
+            int64_t rtt = receive_time - send_time;
+            ESP_LOGI(TAG, "Acknowledgment received at: %lld us", receive_time);
+            ESP_LOGI(TAG, "Round-trip time: %lld us, Estimated one-way latency: %lld us", rtt, rtt / 2);
         }
         break;
     case ESP_BLE_MESH_GENERIC_CLIENT_PUBLISH_EVT:
