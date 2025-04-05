@@ -16,7 +16,14 @@
 #include "esp_log.h"
 #include "mqtt_client.h"
 
+#include "esp_tls.h"
+#include "esp_ota_ops.h"
+#include <sys/param.h>
+
 #include "custom_mqtt_client.h"
+
+extern const uint8_t mqtt_eclipseprojects_io_pem_start[]   asm("_binary_mqtt_eclipseprojects_io_pem_start");
+extern const uint8_t mqtt_eclipseprojects_io_pem_end[]   asm("_binary_mqtt_eclipseprojects_io_pem_end");
 
 static const char *TAG = "mqtt5_example";
 
@@ -37,14 +44,14 @@ static esp_mqtt5_user_property_item_t user_property_arr[] = {
 
 #define USE_PROPERTY_ARR_SIZE   sizeof(user_property_arr)/sizeof(esp_mqtt5_user_property_item_t)
 
-static esp_mqtt5_publish_property_config_t publish_property = {
-    .payload_format_indicator = 1,
-    .message_expiry_interval = 1000,
-    .topic_alias = 0,
-    .response_topic = "/topic/test/response",
-    .correlation_data = "123456",
-    .correlation_data_len = 6,
-};
+// static esp_mqtt5_publish_property_config_t publish_property = {
+//     .payload_format_indicator = 1,
+//     .message_expiry_interval = 1000,
+//     .topic_alias = 0,
+//     .response_topic = "/topic/test/response",
+//     .correlation_data = "123456",
+//     .correlation_data_len = 6,
+// };
 
 static esp_mqtt5_subscribe_property_config_t subscribe_property = {
     .subscribe_id = 25555,
@@ -55,17 +62,17 @@ static esp_mqtt5_subscribe_property_config_t subscribe_property = {
     .share_name = "group1",
 };
 
-static esp_mqtt5_subscribe_property_config_t subscribe1_property = {
-    .subscribe_id = 25555,
-    .no_local_flag = true,
-    .retain_as_published_flag = false,
-    .retain_handle = 0,
-};
+// static esp_mqtt5_subscribe_property_config_t subscribe1_property = {
+//     .subscribe_id = 25555,
+//     .no_local_flag = true,
+//     .retain_as_published_flag = false,
+//     .retain_handle = 0,
+// };
 
-static esp_mqtt5_unsubscribe_property_config_t unsubscribe_property = {
-    .is_share_subscribe = true,
-    .share_name = "group1",
-};
+// static esp_mqtt5_unsubscribe_property_config_t unsubscribe_property = {
+//     .is_share_subscribe = true,
+//     .share_name = "group1",
+// };
 
 static esp_mqtt5_disconnect_property_config_t disconnect_property = {
     .session_expiry_interval = 60,
@@ -195,6 +202,7 @@ static void mqtt5_app_start(void)
         .network.disable_auto_reconnect = true,
         .credentials.username = "123",
         .credentials.authentication.password = "456",
+        .broker.verification.certificate = (const char *)mqtt_eclipseprojects_io_pem_start,
         .session.last_will.topic = "/topic/will",
         .session.last_will.msg = "i will leave",
         .session.last_will.msg_len = 12,
